@@ -35,12 +35,20 @@ public class Question4 {
     }
 
     private static int[] positive(int[] a) {
-        int[] result = new int[a.length];
+        int num_positive = 0;
 
-        for (int i = 0; i < a.length; i++) {
-            int v = a[i];
+        for (int v : a) {
             if (v >= 0) {
-                result[i] = v; 
+                num_positive++;
+            }
+        }
+
+        int[] result = new int[num_positive];
+        int index = 0;
+        for (int v : a) {
+            if (v >= 0) {
+                result[index] = v;
+                index++;
             }
         }
 
