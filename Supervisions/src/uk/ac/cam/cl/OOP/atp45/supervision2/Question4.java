@@ -5,14 +5,17 @@ public class Question4 {
         ParentClass _2D = new ParentClass(2);
         ChildClass _3D = new ChildClass(2, 3);
 
-        //Running the same method results in different outputs
+        //Calling the same method results in different outputs
+        //The compiler doesn't know which method will be called
+        //The distinction must be made at runtime
+
         System.out.println(_2D.getDistance());
         // 2.23606....
         System.out.println(_3D.getDistance());
         // 3.74165....
         System.out.println();
 
-        // Using the same variable put a different print statement
+        // Using the same variable but a different print statement
         _2D.printX();
         // ParentClass x: 1
         _3D.printX();
