@@ -2,37 +2,57 @@ package uk.ac.cam.cl.OOP.atp45.TamagotchiRipoff;
 
 import java.util.ArrayList;
 
-class User {
+public class User {
     private final String username;
     private final int id;
     private ArrayList<Pet> pets = new ArrayList<>();
 
-    User(String username, int id) {
+    public User(String username, int id) {
         this.username = username;
         this.id = id;
     }
 
-    void update(int days_passed, int delta_t) {
+    public void update(int hours_passed) {
+        ArrayList<Pet> dead_pets = new ArrayList<>();
+
         for (Pet pet : pets) {
-            pet.update(days_passed);
+            pet.update(hours_passed);
+
+            if (pet.isDead()) {
+                dead_pets.add(pet);
+            }
+        }
+
+        for (Pet pet : dead_pets){
+            pets.remove(pet);
         }
     }
 
-    void newYear() {
+    public void newYear() {
         for (Pet pet : pets) {
             pet.newYear();
         }
     }
 
-    ArrayList<Pet> getPets() {
+    public void newDay() {
+        for (Pet pet : pets) {
+            pet.newDay();
+        }
+    }
+
+    public ArrayList<Pet> getPets() {
         return pets;
     }
 
-    String getUsername() {
+    public String getUsername() {
         return username;
     }
 
-    void addPet(Pet pet) {
+    public void addPet(Pet pet) {
         pets.add(pet);
+    }
+
+    public boolean hasPets() {
+        return pets.size() > 0;
     }
 }

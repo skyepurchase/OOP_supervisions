@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 interface UI {
     String getInput();
+    void displayNoPets();
     void displayPets(ArrayList<Pet> pets);
     void displayMenu(ArrayList<String> choices);
     int displayShop(ArrayList<Pet> pets);

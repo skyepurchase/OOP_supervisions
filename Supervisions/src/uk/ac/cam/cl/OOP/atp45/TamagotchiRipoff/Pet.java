@@ -1,13 +1,13 @@
 package uk.ac.cam.cl.OOP.atp45.TamagotchiRipoff;
 
-abstract class Pet {
+abstract public class Pet {
 
     protected final char sex;
     protected final int death_age;
     protected String name;
-    protected int hunger = 0;
-    protected int energy = 50;
-    protected int satisfaction = 50;
+    protected int hunger = 50;
+    protected int energy = 75;
+    protected int satisfaction = 25;
     protected int hunger_depletion;
     protected int energy_depletion;
     protected int satisfaction_depletion;
@@ -28,18 +28,18 @@ abstract class Pet {
 
     abstract public void feed();
     abstract public void play();
-    abstract public void update(int hours_passed);
+    abstract public void update(int delta_t);
+    abstract public void newDay();
 
-    public void sleep(int hours_passed) {
-        time_at_sleeping = hours_passed;
+    public void sleep() {
         awake = false;
     }
 
-    boolean isDead() {
+    public boolean isDead() {
         return !alive;
     }
 
-    boolean isAwake() {
+    public boolean isAwake() {
         return awake;
     }
 
@@ -50,22 +50,21 @@ abstract class Pet {
         satisfaction = 100;
     }
 
-    void newYear() {
+    public void newYear() {
         age++;
     }
 
-    void changeName(String name) {
+    public void changeName(String name) {
         this.name = name;
     }
 
     @Override
     public String toString() {
-        String msg = "\nName: " + name +
+        return "\nName: " + name +
                 "\nSex: " + sex +
                 "\nAge: " + age +
                 "\nEnergy: " + energy +
                 "\nSatisfaction: " + satisfaction +
                 "\nHunger: " + hunger;
-        return msg;
     }
 }

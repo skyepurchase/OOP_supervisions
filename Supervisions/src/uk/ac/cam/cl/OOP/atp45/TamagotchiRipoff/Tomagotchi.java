@@ -16,6 +16,9 @@ public class Tomagotchi {
             "6. Quit"
     ));
     private static int nextID;
+    private long start_time;
+    private long previous_time;
+    private long current_time;
 
     public Tomagotchi(String username) {
         this.users = new ArrayList<>(Collections.singletonList(new User(username, nextID)));
@@ -28,22 +31,22 @@ public class Tomagotchi {
     }
 
     public void run(User user) throws InterruptedException {
-        long start_time = System.currentTimeMillis();
-        long current_time = 0;
-        long previous_time = start_time;
+        start_time = System.currentTimeMillis();
+        previous_time = start_time;
+        current_time = start_time;
 
         boolean playing = true;
 
         Shop shop = new Shop();
 
         while (playing) {
-            current_time = System.currentTimeMillis();
-
-            update(user, shop, current_time - previous_time, current_time - start_time);
-
-            previous_time = current_time;
+            update(user, shop);
 
             user_interface.displayMenu(choices);
+
+            if (!user.hasPets()) {
+                user_interface.displayNoPets();
+            }
 
             int choice = getIntInput();
             if (choice == 6) {
@@ -85,52 +88,68 @@ public class Tomagotchi {
         user_interface.displayMessage("It's a new day!");
     }
 
+    private void newYear() {
+        user_interface.displayMessage("It's a new year!");
+    }
+
     private void feedPet(User user) {
         ArrayList<Pet> pets = user.getPets();
         int num_pets = user_interface.displayFeed(pets);
 
-        int choice = getIntInput();
+        if (user.hasPets()) {
+            int choice = getIntInput();
 
-        while ((choice < 1) || (choice > num_pets)) {
-            user_interface.displayMessage("Invalid input! Outside of range!");
-            user_interface.displayFeed(pets);
-            choice = getIntInput();
+            while ((choice < 1) || (choice > num_pets)) {
+                user_interface.displayMessage("Invalid input! Outside of range!");
+                user_interface.displayFeed(pets);
+                choice = getIntInput();
+            }
+
+            Pet pet = pets.get(choice - 1);
+            pet.feed();
+        } else {
+            user_interface.displayNoPets();
         }
-
-        Pet pet = pets.get(choice - 1);
-        pet.feed();
     }
 
     private void playPet(User user) {
         ArrayList<Pet> pets = user.getPets();
         int num_pets = user_interface.displayPlay(pets);
 
-        int choice = getIntInput();
+        if (user.hasPets()) {
+            int choice = getIntInput();
 
-        while ((choice < 1) || (choice > num_pets)) {
-            user_interface.displayMessage("Invalid input! Outside of range!");
-            user_interface.displayPlay(pets);
-            choice = getIntInput();
+            while ((choice < 1) || (choice > num_pets)) {
+                user_interface.displayMessage("Invalid input! Outside of range!");
+                user_interface.displayPlay(pets);
+                choice = getIntInput();
+            }
+
+            Pet pet = pets.get(choice - 1);
+            pet.play();
+        } else {
+            user_interface.displayNoPets();
         }
-
-        Pet pet = pets.get(choice - 1);
-        pet.play();
     }
 
     private void wakePet(User user) {
         ArrayList<Pet> pets = user.getPets();
         int num_pets = user_interface.displayWake(pets);
 
-        int choice = getIntInput();
+        if (user.hasPets()) {
+            int choice = getIntInput();
 
-        while ((choice < 1) || (choice > num_pets)) {
-            user_interface.displayMessage("Invalid input! Outside of range!");
-            user_interface.displayPlay(pets);
-            choice = getIntInput();
+            while ((choice < 1) || (choice > num_pets)) {
+                user_interface.displayMessage("Invalid input! Outside of range!");
+                user_interface.displayPlay(pets);
+                choice = getIntInput();
+            }
+
+            Pet pet = pets.get(choice - 1);
+            pet.play();
+        } else {
+            user_interface.displayNoPets();
         }
-
-        Pet pet = pets.get(choice - 1);
-        pet.play();
     }
 
     private void buyPet(User user, Shop shop) {
@@ -145,7 +164,7 @@ public class Tomagotchi {
             choice = getIntInput();
         }
 
-        if (choice < num_pets+1) {
+        if (choice < num_pets) {
             Pet pet = pets.get(choice - 1);
             user_interface.displayMessage("What would you like to rename it to?");
             String name = getStrInput();
@@ -155,24 +174,33 @@ public class Tomagotchi {
         }
     }
 
-    private void update(User user, Shop shop, long delta_t, long elapsed_time) {
-        int seconds_passed = (int) ((elapsed_time * 9) / 25);
-        int minutes_passed = (int) ((elapsed_time * 3) / 500);
-        int hours_passed = (int) (elapsed_time / 10000); // 10 seconds per hour
+    private void update(User user, Shop shop) {
+        current_time = System.currentTimeMillis();
+        long elapsed_time = current_time - start_time;
+        long delta_t = current_time - previous_time;
+
+        int seconds_passed = (int) ((elapsed_time * 6) / 50);
+        int minutes_passed = (int) (elapsed_time / 500);
+        int hours_passed = (int) (elapsed_time / 30000); // 30 seconds per hour
 
         user_interface.displayMessage(user.getUsername());
         user_interface.displayTime(hours_passed % 24, minutes_passed % 60, seconds_passed % 60);
 
         if (hours_passed % (24 * 365) == 0) {
+            newYear();
             user.newYear();
             shop.newYear();
         }
 
-        if (hours_passed % 24 == 0) {
+        if ((hours_passed % 24 == 0) && (minutes_passed % 60 == 0)) {
             newDay();
-
+            user.newDay();
         }
-        user.update(hours_passed, (int) delta_t);
-        shop.update(hours_passed, (int) delta_t);
+
+        if (delta_t > 30000) { // Only update the pets after an hour
+            user.update((int) delta_t);
+            shop.update((int) delta_t);
+            previous_time = current_time;
+        }
     }
 }
